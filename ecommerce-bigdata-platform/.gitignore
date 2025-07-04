@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+venv/
+backend/venv/
+
+# Node.js
+node_modules/
+frontend/node_modules/
+
+# Environment files
+# .env
+# .env.*
+cloud-services/.env
+backend/.env
+frontend/.env
+
+# Logs
+*.log
+logs/
+
+# Databases
+*.sqlite3
+*.db
+
+# Compiled files
+*.out
+*.o
+*.a
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test and coverage
+.coverage
+coverage/
+htmlcov/
+
+# Misc
+*.bak
+*.tmp
+
+# Cloud service generated files
+cloud-services/kafka-topics-config.json 

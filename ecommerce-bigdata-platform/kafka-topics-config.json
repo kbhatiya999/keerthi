@@ -1,0 +1,49 @@
+{
+  "topics": {
+    "clickstream": {
+      "description": "User interaction events (add_to_cart, view_product, search)",
+      "partitions": 3,
+      "replication_factor": 3,
+      "configs": {
+        "retention.ms": "604800000",
+        "cleanup.policy": "delete"
+      }
+    },
+    "orders": {
+      "description": "Order creation and updates",
+      "partitions": 3,
+      "replication_factor": 3,
+      "configs": {
+        "retention.ms": "2592000000",
+        "cleanup.policy": "delete"
+      }
+    },
+    "payments": {
+      "description": "Payment success/failure events",
+      "partitions": 3,
+      "replication_factor": 3,
+      "configs": {
+        "retention.ms": "2592000000",
+        "cleanup.policy": "delete"
+      }
+    },
+    "inventory": {
+      "description": "Product creation and inventory updates",
+      "partitions": 3,
+      "replication_factor": 3,
+      "configs": {
+        "retention.ms": "2592000000",
+        "cleanup.policy": "delete"
+      }
+    },
+    "user_events": {
+      "description": "General user events",
+      "partitions": 3,
+      "replication_factor": 3,
+      "configs": {
+        "retention.ms": "604800000",
+        "cleanup.policy": "delete"
+      }
+    }
+  }
+}

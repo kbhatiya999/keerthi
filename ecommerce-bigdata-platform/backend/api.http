@@ -1,0 +1,360 @@
+### ========================================
+### AUTHENTICATION & USER MANAGEMENT
+### ========================================
+
+### 1. Register a new customer
+POST http://localhost:8000/auth/register
+Content-Type: application/json
+
+{
+  "email": "customer1@example.com",
+  "password": "customer123",
+  "name": "Customer One"
+}
+
+### 2. Login as customer
+# @name customerLogin
+POST http://localhost:8000/auth/login
+Content-Type: application/json
+
+{
+  "email": "customer1@example.com",
+  "password": "customer123"
+}
+
+### 3. Extract customer token
+@customerToken = {{customerLogin.response.body.access_token}}
+
+### 4. Get current customer info
+GET http://localhost:8000/auth/me
+Authorization: Bearer {{customerToken}}
+
+### 5. Login as super admin
+# @name superAdminLogin
+POST http://localhost:8000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@ecommerce.com",
+  "password": "admin123"
+}
+
+### 6. Extract super admin token
+@superAdminToken = {{superAdminLogin.response.body.access_token}}
+
+### 7. Get super admin info
+GET http://localhost:8000/auth/me
+Authorization: Bearer {{superAdminToken}}
+
+### ========================================
+### SUPER ADMIN USER MANAGEMENT
+### ========================================
+
+### 8. Super Admin: Create a new admin user
+POST http://localhost:8000/users
+Content-Type: application/json
+Authorization: Bearer {{superAdminToken}}
+
+{
+  "email": "newadmin@ecommerce.com",
+  "password": "admin123",
+  "name": "New Admin User",
+  "role": "admin"
+}
+
+### 9. Super Admin: Create a new customer user
+POST http://localhost:8000/users
+Content-Type: application/json
+Authorization: Bearer {{superAdminToken}}
+
+{
+  "email": "newcustomer@ecommerce.com",
+  "password": "customer123",
+  "name": "New Customer User",
+  "role": "customer"
+}
+
+### 10. Super Admin: Get all users
+GET http://localhost:8000/users
+Authorization: Bearer {{superAdminToken}}
+
+### 11. Super Admin: Get users by role (customers only)
+GET http://localhost:8000/users?role=customer
+Authorization: Bearer {{superAdminToken}}
+
+### 12. Super Admin: Get users by role (admins only)
+GET http://localhost:8000/users?role=admin
+Authorization: Bearer {{superAdminToken}}
+
+### ========================================
+### ADMIN USER MANAGEMENT (LIMITED)
+### ========================================
+
+### 13. Login as the new admin user
+# @name newAdminLogin
+POST http://localhost:8000/auth/login
+Content-Type: application/json
+
+{
+  "email": "newadmin@ecommerce.com",
+  "password": "admin123"
+}
+
+### 14. Extract new admin token
+@newAdminToken = {{newAdminLogin.response.body.access_token}}
+
+### 15. New Admin: Get only customer users (should work)
+GET http://localhost:8000/users
+Authorization: Bearer {{newAdminToken}}
+
+### 16. New Admin: Try to get all users (should fail - only sees customers)
+GET http://localhost:8000/users?role=admin
+Authorization: Bearer {{newAdminToken}}
+
+### 17. New Admin: Try to create another admin (should fail)
+POST http://localhost:8000/users
+Content-Type: application/json
+Authorization: Bearer {{newAdminToken}}
+
+{
+  "email": "anotheradmin@ecommerce.com",
+  "password": "admin123",
+  "name": "Another Admin",
+  "role": "admin"
+}
+
+### ========================================
+### PRODUCT MANAGEMENT
+### ========================================
+
+### 18. Admin: Create a product
+POST http://localhost:8000/products
+Content-Type: application/json
+Authorization: Bearer {{newAdminToken}}
+
+{
+  "name": "Laptop Pro",
+  "description": "High-performance laptop for professionals",
+  "price": 1299.99,
+  "category": "Electronics",
+  "stock_quantity": 50,
+  "brand": "TechCorp",
+  "sku": "LAPTOP-PRO-001",
+  "tags": ["laptop", "professional", "gaming"]
+}
+
+### 19. Admin: Create another product
+POST http://localhost:8000/products
+Content-Type: application/json
+Authorization: Bearer {{newAdminToken}}
+
+{
+  "name": "Wireless Headphones",
+  "description": "Premium noise-canceling headphones",
+  "price": 199.99,
+  "category": "Electronics",
+  "stock_quantity": 100,
+  "brand": "AudioMax",
+  "sku": "HEADPHONES-WIRELESS-002",
+  "tags": ["headphones", "wireless", "noise-canceling"]
+}
+
+### 20. Get all products (public endpoint)
+GET http://localhost:8000/products
+
+### 21. Get products by category
+GET http://localhost:8000/products?category=Electronics
+
+### ========================================
+### CART MANAGEMENT
+### ========================================
+
+### 22. Customer: Get empty cart
+GET http://localhost:8000/cart
+Authorization: Bearer {{customerToken}}
+
+### 23. Customer: Add product to cart (replace with actual product_id)
+POST http://localhost:8000/cart/items
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "product_id": "686191b50867d18910e89073",
+  "quantity": 2
+}
+
+### 24. Customer: View cart with items
+GET http://localhost:8000/cart
+Authorization: Bearer {{customerToken}}
+
+### 24.5. Customer: Get cart summary
+GET http://localhost:8000/cart/summary
+Authorization: Bearer {{customerToken}}
+
+### 24.6. Customer: Update item quantity in cart
+PUT http://localhost:8000/cart/items/686191b50867d18910e89073?quantity=5
+Authorization: Bearer {{customerToken}}
+
+### 24.7. Customer: Bulk update cart items
+PUT http://localhost:8000/cart/items
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+[
+  {
+    "product_id": "686191b50867d18910e89073",
+    "quantity": 1
+  },
+  {
+    "product_id": "6861b101ea3fdc83f9d6e778",
+    "quantity": 2
+  }
+]
+
+### 24.8. Customer: Checkout cart to order
+POST http://localhost:8000/cart/checkout
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "shipping_address": {
+    "street": "123 Main St",
+    "city": "New York",
+    "state": "NY",
+    "zip": "10001",
+    "country": "USA"
+  },
+  "billing_address": {
+    "street": "123 Main St",
+    "city": "New York",
+    "state": "NY",
+    "zip": "10001",
+    "country": "USA"
+  }
+}
+
+### 24.9. Customer: Clear entire cart
+DELETE http://localhost:8000/cart
+Authorization: Bearer {{customerToken}}
+
+### ========================================
+### ORDER MANAGEMENT
+### ========================================
+
+### 25. Customer: Create an order
+POST http://localhost:8000/orders
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "customer_id": "{{customerLogin.response.body.user_id}}",
+  "items": [
+    {
+      "product_id": "686191b50867d18910e89073",
+      "quantity": 1,
+      "price": 1299.99
+    }
+  ],
+  "total_amount": 1299.99,
+  "channel": "website",
+  "shipping_address": {
+    "street": "123 Main St",
+    "city": "New York",
+    "state": "NY",
+    "zip": "10001",
+    "country": "USA"
+  },
+  "billing_address": {
+    "street": "123 Main St",
+    "city": "New York",
+    "state": "NY",
+    "zip": "10001",
+    "country": "USA"
+  }
+}
+
+### 26. Customer: Get my orders
+GET http://localhost:8000/orders
+Authorization: Bearer {{customerToken}}
+
+### 27. Admin: Delete an order (replace with actual order_id)
+DELETE http://localhost:8000/orders/6861b7aee9dce9d38c0ea178
+Authorization: Bearer {{newAdminToken}}
+
+### 27.5. Admin: Delete ALL orders (⚠️ DANGEROUS - Use with caution!)
+DELETE http://localhost:8000/orders
+Authorization: Bearer {{newAdminToken}}
+
+### ========================================
+### ADMIN DASHBOARD
+### ========================================
+
+### 28. Admin: Get platform statistics
+GET http://localhost:8000/admin/stats
+Authorization: Bearer {{newAdminToken}}
+
+### 29. Admin: Get recent orders
+GET http://localhost:8000/admin/recent-orders
+Authorization: Bearer {{newAdminToken}}
+
+### ========================================
+### EVENT TRACKING
+### ========================================
+
+### 30. Track page view event
+POST http://localhost:8000/events
+Content-Type: application/json
+
+{
+  "event_type": "page_view",
+  "customer_id": "{{customerLogin.response.body.user_id}}",
+  "session_id": "session_123",
+  "properties": {
+    "page": "product_detail",
+    "referrer": "search",
+    "product_id": "686191b50867d18910e89073"
+  }
+}
+
+### 31. Track add to cart event
+POST http://localhost:8000/events
+Content-Type: application/json
+
+{
+  "event_type": "add_to_cart",
+  "customer_id": "{{customerLogin.response.body.user_id}}",
+  "product_id": "686191b50867d18910e89073",
+  "session_id": "session_123",
+  "properties": {
+    "quantity": 1,
+    "price": 1299.99
+  }
+}
+
+### ========================================
+### CUSTOMER LIMITATIONS TEST
+### ========================================
+
+### 32. Customer: Try to access admin stats (should fail)
+GET http://localhost:8000/admin/stats
+Authorization: Bearer {{customerToken}}
+
+### 33. Customer: Try to access user management (should fail)
+GET http://localhost:8000/users
+Authorization: Bearer {{customerToken}}
+
+### 34. Customer: Try to create a product (should fail)
+POST http://localhost:8000/products
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "name": "Test Product",
+  "description": "This should fail",
+  "price": 10.00,
+  "category": "Test",
+  "stock_quantity": 1,
+  "sku": "TEST-001",
+  "brand": "TestBrand",
+  "tags": ["test"]
+} 
